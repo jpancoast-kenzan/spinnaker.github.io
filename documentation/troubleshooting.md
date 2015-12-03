@@ -87,9 +87,9 @@ The Spinnaker service responsible for creating applications is [front50](https:/
 
 Thrift should now be enabled. Execute `curl localhost:9160` and verify that you receive an 'empty reply'.
 
-The last step is to restart the two Spinnaker services that require Cassandra to be available on startup: `sudo service front50 restart` and `sudo service echo restart`.
+The last step is to restart the three Spinnaker services that require Cassandra to be available on startup: `sudo service front50 restart`, `sudo service echo restart` and `sudo service rush restart`.
 
-We will be making front50 and [echo](https://github.com/spinnaker/echo) more tolerant of an unavailable or misconfigured Cassandra cluster on startup shortly.
+We will be making [front50](https://github.com/spinnaker/front50), [echo](https://github.com/spinnaker/echo) and [rush](https://github.com/spinnaker/rush) more tolerant of an unavailable or misconfigured Cassandra cluster on startup shortly.
 
 ## I changed my configuration. How do I get Spinnaker to pick up the modified configuration?
 *Note: This section is useful mainly for operators who either used one of the pre-baked Spinnaker machine images or installed Spinnaker from the .deb files (usually on an AWS or GCE VM). If doing development locally, you can probably skip this section.*
@@ -152,3 +152,18 @@ A few ways you can remove this restriction:
 1. Edit `/etc/apache/ports.conf` and change `Listen 127.0.0.1:9000` to `Listen 9000`
 1. Add a reverse proxy for ports you wish to open in Apache
 1. Edit config files in `/opt/spinnaker/conf` to disable the bind to `localhost`. Change `localhost` to domain name or `0.0.0.0`
+
+## I don't see my VPCs in any of the dropdowns.
+Spinnaker uses naming conventions to parse a lot of things, including VPC and subnet names. If you are starting with a new VPC, we strongly suggest you name your subnets with the following pattern: 
+`{vpcName}.{subnetPurpose (e.g. "internal")}.{availabilityZone}`
+Spinnaker will parse the subnet by splitting the name on the dots (`.`).
+![Subnet naming - preferred](../images/troubleshooting/subnetNamingPreferred.png)
+
+If you're working with existing VPCs and subnets, there is an alternative approach to associating your subnets: add a new tag, using `immutable_metadata` as the key, with the following JSON structure:
+`{"purpose": "{subnet purpose}"}`
+
+![Subnet naming - alternative](../images/troubleshooting/subnetNamingAlt.png)
+
+If the `immutable_metadata` tag exists and it includes the `purpose` field, Spinnaker will use that value; it will *not* attempt to parse the name tag.
+
+If you modify the subnet tags, you may need to refresh the browser's internal cache of the VPCs/subnets before they appear as options in dropdowns. See "[I changed my configuration...](#i-changed-my-configuration-how-do-i-get-spinnaker-to-pick-up-the-modified-configuration)" for instructions on refreshing the cache.
