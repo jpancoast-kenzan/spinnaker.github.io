@@ -86,7 +86,7 @@ role.
 1. Create an EC2 Key Pair for connecting to your instances.
 * Goto [Console](https://console.aws.amazon.com) > EC2 > Key Pairs.
 * Click **Create Key Pair**.
-* Name the key pair <code>my-aws-account-keypair</code>.
+* Name the key pair <code>my-aws-account-keypair</code>. (Note: this must match your account name plus "-keypair")
 * AWS will download file <code>my-aws-account-keypair.pem</code> to
   your computer. <code>chmod 400</code> the file.
 
@@ -159,7 +159,7 @@ Create an AWS virtual machine.
 * Goto [AWS Console](https://console.aws.amazon.com) > EC2.
 * Click **Launch Instance**.
 * Click **Community AMIs** then
-* If the default region where your resources were allocated in [Step 1](#step-1-set-up-your-target-deployment-environment) is <code>us-west-2</code>, click **Select** for the **Spinnaker-Ubuntu-14.04-10 - [ami-ef65758e](https://console.aws.amazon.com/ec2/home?region=us-west-2#launchAmi=ami-ef65758e)** image. Otherwise, consult {% include link.to id="ami_table" text="this region-to-AMI mapping table" %} to identify an appropriate image to use.
+* If the default region where your resources were allocated in [Step 1](#step-1-set-up-your-target-deployment-environment) is <code>us-west-2</code>, click **Select** for the **Spinnaker-Ubuntu-14.04-10 - [ami-b86675d9](https://console.aws.amazon.com/ec2/home?region=us-west-2#launchAmi=ami-b86675d9)** image. Otherwise, consult {% include link.to id="ami_table" text="this region-to-AMI mapping table" %} to identify an appropriate image to use.
 * Under **Step 2: Choose an Instance Type**, click the radio button
   for **m4.xlarge**, then click **Next: Configure Instance Details**.
 * Set the **Auto-assign Public IP** field to **Enable**, and the **IAM
@@ -174,16 +174,54 @@ Create an AWS virtual machine.
 1. Shell in and open an SSH tunnel from your host to the virtual machine.
 * Add this to ~/.ssh/config
 
-          Host spinnaker
-            HostName <Public IP address of instance you just created>
+          Host spinnaker-start
+            HostName <Public DNS name of instance you just created>
             IdentityFile </path/to/my-aws-account-keypair.pem>
+            ControlMaster yes
+            ControlPath ~/.ssh/spinnaker-tunnel.ctl
+            RequestTTY no
             LocalForward 9000 127.0.0.1:9000
             LocalForward 8084 127.0.0.1:8084
             LocalForward 8087 127.0.0.1:8087
             User ubuntu
-* Execute
 
-          ssh spinnaker
+          Host spinnaker-stop
+            HostName <Public DNS name of instance you just created>
+            IdentityFile </path/to/my-aws-account-keypair.pem>
+            ControlPath ~/.ssh/spinnaker-tunnel.ctl
+            RequestTTY no
+
+* Create a spinnaker-tunnel.sh file with the following content, and give it execute permissions
+
+          #!/bin/bash
+
+          socket=$HOME/.ssh/spinnaker-tunnel.ctl
+
+          if [ "$1" == "start" ]; then
+            if [ ! \( -e ${socket} \) ]; then
+              echo "Starting tunnel to Spinnaker..."
+              ssh -f -N spinnaker-start && echo "Done."
+            else
+              echo "Tunnel to Spinnaker running."
+            fi
+          fi
+
+          if [ "$1" == "stop" ]; then
+            if [ \( -e ${socket} \) ]; then
+              echo "Stopping tunnel to Spinnaker..."
+              ssh -O "exit" spinnaker-stop && echo "Done."
+            else
+              echo "Tunnel to Spinnaker stopped."
+            fi
+          fi
+
+* Execute the script to start your Spinnaker tunnel
+
+          ./spinnaker-tunnel.sh start
+
+* You can also stop your Spinnaker tunnel
+
+          ./spinnaker-tunnel.sh stop
 
 ### Google Cloud Platform Setup
 
