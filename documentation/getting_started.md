@@ -131,10 +131,31 @@ take note of the auto-generated Project ID (e.g. *powerful-surf-12345*).
     Autoscaler](https://console.developers.google.com/apis/api/autoscaler/overview?project=_)
     APIs.
 
+2. Obtain service account credentials.
+  * This step is only required to manage your GCP project from Spinnaker
+    running outside that project (e.g. Spinnaker is running on AWS or in a
+    different GCP project).
+  * Go to the Credentials tab on the API Management page.
+  * Select the **Service account key** item from the **New credentials** menu.
+  * Select a service account, the **JSON** key type, and click **Create**.
+  * Safeguard the JSON file that your browser will download. We will later
+    copy this into your Spinnaker deployment so that it can manage your
+    GCP project.
+
+### Cloud Foundry Platform Setup
+
+If you'd like to have Spinnaker deploy to and manage applications on either Pivotal's public facing PWS or on your own Cloud Foundry setup, you'll need to have an account setup. If you've already got one, please skip to the next step. Otherwise, please follow the instructions below.
+
+1. Sign into [Pivotal Web Services](http://run.pivotal.io/) or your local instance of Cloud Foundry.
+2. In your organization, create a new space. 
+  * Note your organization name and space name to use in spinnaker-local.yml settings.
+
 ## Step 2: Set up a Spinnaker instance
 
 In this step, you'll set up an instance of Spinnaker on AWS, GCP or on a local host.
 We strongly recommend using a machine with 8 cores and at least 50GB RAM.
+
+> **NOTE:** More modifications are being worked on to support running Spinnaker on Cloud Foundry. For now, follow the steps to run it locally.
 
 ### AWS Setup
 
@@ -159,7 +180,7 @@ Create an AWS virtual machine.
 * Goto [AWS Console](https://console.aws.amazon.com) > EC2.
 * Click **Launch Instance**.
 * Click **Community AMIs** then
-* If the default region where your resources were allocated in [Step 1](#step-1-set-up-your-target-deployment-environment) is <code>us-west-2</code>, click **Select** for the **Spinnaker-Ubuntu-14.04-10 - [ami-b86675d9](https://console.aws.amazon.com/ec2/home?region=us-west-2#launchAmi=ami-b86675d9)** image. Otherwise, consult {% include link.to id="ami_table" text="this region-to-AMI mapping table" %} to identify an appropriate image to use.
+* If the default region where your resources were allocated in [Step 1](#step-1-set-up-your-target-deployment-environment) is <code>us-west-2</code>, click **Select** for the **Spinnaker-Ubuntu-14.04-24 - [ami-4340a223](https://console.aws.amazon.com/ec2/home?region=us-west-2#launchAmi=ami-4340a223)** image. Otherwise, consult {% include link.to id="ami_table" text="this region-to-AMI mapping table" %} to identify an appropriate image to use.
 * Under **Step 2: Choose an Instance Type**, click the radio button
   for **m4.xlarge**, then click **Next: Configure Instance Details**.
 * Set the **Auto-assign Public IP** field to **Enable**, and the **IAM
@@ -245,6 +266,11 @@ the **Continue** button.
 You can find the specific command in the **Suggest next steps** screen that appears.
   * Spinnaker may take a few minutes to configure itself. We suggest giving your instance 3-5 minutes
     for post-configurations to complete.
+
+### Cloud Foundry Platform Setup
+
+At this stage, you should either run an AWS-installed, GCP-installed, or locally installed version of 
+Spinnaker per instructions above. (Running Spinnaker inside CF is coming soon.)
 
 ### Running Spinnaker on a host not on AWS or GCP
 

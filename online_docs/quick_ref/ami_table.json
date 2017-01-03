@@ -1,5 +1,6 @@
 {
     "HVM": {
+<<<<<<< HEAD
         "ap-northeast-1": "ami-4c1c3322", 
         "ap-southeast-1": "ami-24c00047", 
         "ap-southeast-2": "ami-742f7717", 
@@ -11,3 +12,16 @@
         "us-west-2": "ami-5e06143f"
     }
 }
+=======
+        "ap-northeast-1": "ami-268e8d48", 
+        "ap-southeast-1": "ami-4527ee26", 
+        "ap-southeast-2": "ami-f01f3993", 
+        "eu-central-1": "ami-4aa14425", 
+        "eu-west-1": "ami-4060dc33", 
+        "sa-east-1": "ami-45951729", 
+        "us-east-1": "ami-13685579", 
+        "us-west-1": "ami-1c04747c", 
+        "us-west-2": "ami-4340a223"
+    }
+}
+>>>>>>> upstream/master
